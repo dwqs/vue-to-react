@@ -31,7 +31,6 @@
     "homepage": "https://github.com/dwqs/vue-to-react#readme",
     "scripts": {
         "prepush": "npm run ilint -q",
-        "prepublishOnly": "npm run build",
         "commitmsg": "npx commitlint -e",
         "ilint": "npx eslint src/**/*.js",
         "fix": "npx eslint --fix src/**/*.js"
