@@ -1,0 +1,9 @@
+{
+    "presets": [["env", {
+        "targets": {
+          "node": "current"
+        },
+        "modules": "commonjs",
+        "debug": true
+      }]]
+}
