@@ -8,7 +8,7 @@ const t = require('babel-types');
 // const compiler = require('vue-template-compiler');
 
 const { parseName } = require('./utils');
-
+const { genImports, genConstructor, genRender } = require('./ast-helpers');
 const output = require('./output');
 
 let componentName = 'my-react-compoennt';
@@ -22,9 +22,9 @@ const vast = babylon.parse(source.toString(), {
 
 const collect = { 
     classMethods: {}, 
-    imports: {},
+    imports: [],
     computeds: {},
-    data: null,
+    data: [],
     cycle: {}
 };
 
@@ -42,6 +42,10 @@ babelTraverse(vast, {
         // }
     },
 
+    ImportDeclaration (path) {
+        collect.imports.push(path.node);
+    },
+
     ObjectProperty (path) {
         if (path.node.key.name === 'name') {
             componentName = path.node.value.value;
@@ -51,15 +55,15 @@ babelTraverse(vast, {
     ObjectMethod (path) {
         if (path.node.key.name === 'data') {
             const body = path.node.body;
-            const nodeLists = body.body;
+            collect.data = [].concat(body.body);
             
-            for (let i = 0; i < nodeLists.length; i++) {
-                const node = nodeLists[i];
-                if (t.isReturnStatement(node)) {
-                    collect.data = node.argument;
-                    break;
-                }
-            }
+            // for (let i = 0; i < nodeLists.length; i++) {
+            //     const node = nodeLists[i];
+            //     if (t.isReturnStatement(node)) {
+            //         collect.data = node.argument;
+            //         break;
+            //     }
+            // }
         }
 
         if (path.node.key.name === 'render') {
@@ -84,30 +88,12 @@ const rast = babylon.parse(tpl, {
 
 babelTraverse(rast, {
     Program (path) {
-        const nodeLists = path.node.body;
-        const importNode = t.importDeclaration(
-            [
-                t.importDefaultSpecifier(t.identifier('React')),
-                t.importSpecifier(t.identifier('Component'), t.identifier('Component'))
-            ],
-            t.stringLiteral('react')
-        );
-        path.node.body.unshift(importNode);
+        genImports(path, collect);
     },
 
     ClassBody (path) {
-        const nodeLists = path.node.body;
-        const con = t.classMethod(
-            'constructor', 
-            t.identifier('constructor'), 
-            [t.identifier('props')],
-            t.blockStatement([
-                t.expressionStatement(t.callExpression(t.super(), [t.identifier('props')])),
-                t.expressionStatement(t.assignmentExpression('=', t.memberExpression(t.thisExpression(), t.identifier('state')), collect.data))
-            ])
-        );
-        nodeLists.push(con);
-        nodeLists.push(collect.classMethods['render']);
+        genConstructor(path, collect);
+        genRender(path, collect);
     }
 });
 
