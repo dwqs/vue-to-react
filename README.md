@@ -16,12 +16,50 @@ node src/index.js
 #### Input
 ```js
 // demo/vue.js
+import axios from 'axions';
+
+import 'path/to/vue.less';
+// Component Tip: https://github.com/vuejs/babel-plugin-transform-vue-jsx#component-tip
+import Todo from './Todo.js';
+
 export default {
     name: 'demo-test',
+    props: {
+        name: [String, Number],
+        shown: {
+            type: Boolean,
+            default: false
+        },
+        list: {
+            type: Array,
+            default: () => []
+        },
+        obj: {
+            type: Object,
+            default: () => {
+                return {
+                	test: '1111',
+                    message: 'hello'
+                }
+            }
+        },
+        level: {
+            type: Number,
+            required: true,
+            validator: (val) => [1, 2, 3].indexOf(val) > -1
+        },
+        size: {
+            type: String,
+            default: 'small',
+          	validator: (val) => ['large', 'small'].indexOf(val) > -1
+        }
+    },
     data () {
+        const now = Date.now();
         return {
             title: 'vue to react',
-            msg: 'Hello world'
+            msg: 'Hello world',
+            time: now
         }
     },
 
@@ -30,6 +68,7 @@ export default {
             <div>
                 <p>{this.title}</p>
                 <p>{this.msg}</p>
+                <Todo></Todo>
             </div>
         )
     }
@@ -38,21 +77,46 @@ export default {
 
 #### Output
 ```js
+// demo/react.js
 import React, { Component } from 'react';
 
+// Component Tip: https://github.com/vuejs/babel-plugin-transform-vue-jsx#component-tip
+import Todo from './Todo.js';
+import 'path/to/vue.less';
+import axios from 'axions';
+
 export default class DemoTest extends Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
+
+        const now = Date.now();
         this.state = {
-            title: 'vue to react', msg: 'Hello world' 
+            title: 'vue to react',
+            msg: 'Hello world',
+            time: now
         };
     }
+    static propTypes = {
+        name: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        shown: PropTypes.boolean,
+        list: PropTypes.array,
+        obj: PropTypes.object,
+        level: PropTypes.oneOf([1, 2, 3]),
+        size: PropTypes.oneOf(['large', 'small'])
+    };
+    static defaultProps = {
+        shown: false,
+        list: [],
+        obj: { test: '1111', message: 'hello' },
+        size: 'small'
+    };
 
-    render () {
+    render() {
         return (
             <div>
                 <p>{this.state.title}</p>
                 <p>{this.state.msg}</p>
+                <Todo />
             </div>
         );
     }
