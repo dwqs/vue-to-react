@@ -8,10 +8,13 @@ const t = require('babel-types');
 // const compiler = require('vue-template-compiler');
 
 const { parseName } = require('./utils');
-const { genImports, genConstructor, genRender } = require('./ast-helpers');
+const { 
+    genImports, genConstructor, genRender,
+    collectVueProps, genStaticProps
+} = require('./ast-helpers');
 const output = require('./output');
 
-let componentName = 'my-react-compoennt';
+let componentName = '';
 
 // AST for vue component(jsx syntax)
 const source = fs.readFileSync(path.resolve(__dirname, '../demo/vue.js'));
@@ -21,10 +24,11 @@ const vast = babylon.parse(source.toString(), {
 });
 
 const collect = { 
-    classMethods: {}, 
     imports: [],
-    computeds: {},
     data: [],
+    classMethods: {},
+    props: {},
+    computeds: {},
     cycle: {}
 };
 
@@ -47,8 +51,13 @@ babelTraverse(vast, {
     },
 
     ObjectProperty (path) {
-        if (path.node.key.name === 'name') {
+        const name = path.node.key.name;
+        if (name === 'name' && t.isStringLiteral(path.node.value)) {
             componentName = path.node.value.value;
+        }
+
+        if (name === 'props') {
+            collectVueProps(path, collect);
         }
     },
 
@@ -56,14 +65,6 @@ babelTraverse(vast, {
         if (path.node.key.name === 'data') {
             const body = path.node.body;
             collect.data = [].concat(body.body);
-            
-            // for (let i = 0; i < nodeLists.length; i++) {
-            //     const node = nodeLists[i];
-            //     if (t.isReturnStatement(node)) {
-            //         collect.data = node.argument;
-            //         break;
-            //     }
-            // }
         }
 
         if (path.node.key.name === 'render') {
@@ -93,12 +94,14 @@ babelTraverse(rast, {
 
     ClassBody (path) {
         genConstructor(path, collect);
+        genStaticProps(path, collect);
         genRender(path, collect);
     }
 });
 
 const { code } = generate(rast, {
-    quotes: 'single'
+    quotes: 'single',
+    retainLines: true
 });
 
 output(code);
