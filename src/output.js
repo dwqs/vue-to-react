@@ -38,6 +38,7 @@ function output (code) {
                 'padding-line-between-statements': [2, 
                     { 'blankLine': 'always', 'prev': 'import', 'next': 'export' }
                 ],
+                'lines-around-comment': [2, { 'beforeLineComment': true }],
                 'no-console': 0,
                 'no-empty': 0,
                 'no-unused-vars': 0,
