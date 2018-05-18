@@ -6,6 +6,36 @@ import Todo from './Todo.js';
 
 export default {
     name: 'demo-test',
+    props: {
+        name: [String, Number],
+        shown: {
+            type: Boolean,
+            default: false
+        },
+        list: {
+            type: Array,
+            default: () => []
+        },
+        obj: {
+            type: Object,
+            default: () => {
+                return {
+                	test: '1111',
+                    message: 'hello'
+                }
+            }
+        },
+        level: {
+            type: Number,
+            required: true,
+            validator: (val) => [1, 2, 3].indexOf(val) > -1
+        },
+        size: {
+            type: String,
+            default: 'small',
+          	validator: (val) => ['large', 'small'].indexOf(val) > -1
+        }
+    },
     data () {
         const now = Date.now();
         return {
