@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 // Component Tip: https://github.com/vuejs/babel-plugin-transform-vue-jsx#component-tip
 import Todo from './Todo.js';
