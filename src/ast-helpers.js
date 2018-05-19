@@ -13,6 +13,15 @@ exports.genImports = function genImports (path, collect) {
         ],
         t.stringLiteral('react')
     );
+    if (Object.keys(collect.props).length) {
+        const importPropTypes = t.importDeclaration(
+            [
+                t.importDefaultSpecifier(t.identifier('PropTypes'))
+            ],
+            t.stringLiteral('prop-types')
+        );
+        collect.imports.push(importPropTypes);
+    }
     collect.imports.push(importReact);
     collect.imports.forEach(node => nodeLists.unshift(node));
 };
