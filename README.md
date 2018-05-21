@@ -26,6 +26,10 @@ export default {
     name: 'demo-test',
     props: {
         name: [String, Number],
+        count: {
+            type: [String, Number],
+            default: 0
+        },
         shown: {
             type: Boolean,
             default: false
@@ -59,7 +63,8 @@ export default {
         return {
             title: 'vue to react',
             msg: 'Hello world',
-            time: now
+            time: now,
+            toDolist: this.list
         }
     },
 
@@ -68,7 +73,7 @@ export default {
             <div>
                 <p>{this.title}</p>
                 <p>{this.msg}</p>
-                <Todo></Todo>
+                <Todo list={this.toDolist}></Todo>
             </div>
         )
     }
@@ -85,7 +90,6 @@ import PropTypes from 'prop-types';
 import Todo from './Todo.js';
 import 'path/to/vue.less';
 import axios from 'axions';
-
 export default class DemoTest extends Component {
     constructor(props) {
         super(props);
@@ -94,11 +98,13 @@ export default class DemoTest extends Component {
         this.state = {
             title: 'vue to react',
             msg: 'Hello world',
-            time: now
+            time: now,
+            toDolist: props.list
         };
     }
     static propTypes = {
         name: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         shown: PropTypes.boolean,
         list: PropTypes.array,
         obj: PropTypes.object,
@@ -106,6 +112,7 @@ export default class DemoTest extends Component {
         size: PropTypes.oneOf(['large', 'small'])
     };
     static defaultProps = {
+        count: 0,
         shown: false,
         list: [],
         obj: { test: '1111', message: 'hello' },
@@ -117,7 +124,7 @@ export default class DemoTest extends Component {
             <div>
                 <p>{this.state.title}</p>
                 <p>{this.state.msg}</p>
-                <Todo />
+                <Todo list={this.state.toDolist} />
             </div>
         );
     }
