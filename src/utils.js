@@ -57,7 +57,7 @@ exports.genPropTypes = function genPropTypes (props) {
 exports.genDefaultProps = function genDefaultProps (props) {
     const properties = [];
     const keys = Object.keys(props).filter(key => typeof props[key].value !== 'undefined');
-    
+
     for (let i = 0, l = keys.length; i < l; i++) {
         const key = keys[i];
         const obj = props[key];
@@ -65,9 +65,14 @@ exports.genDefaultProps = function genDefaultProps (props) {
 
         let val = t.stringLiteral('error');
         if (obj.type === 'typesOfArray') {
-            continue;
-        }
-        if (obj.type === 'array') {
+            const type = typeof obj.defaultValue;
+            if (type !== 'undefined') {
+                const v = obj.defaultValue;
+                val = type === 'number' ? t.numericLiteral(Number(v)) : type === 'string' ? t.stringLiteral(v) : t.booleanLiteral(v);
+            } else {
+                continue;
+            }
+        } else if (obj.type === 'array') {
             val = t.arrayExpression(obj.value.elements);
         } else if (obj.type === 'object') {
             val = t.objectExpression(obj.value.properties);

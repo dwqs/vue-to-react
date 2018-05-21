@@ -11,14 +11,32 @@ const nestedPropsVisitor = {
             if (key.name === 'type') {
                 if (t.isIdentifier(node)) {
                     this.collect.props[this.childKey].type = node.name.toLowerCase();
+                } else if (t.isArrayExpression(node)) {
+                    const elements = [];
+                    node.elements.forEach(n => {
+                        elements.push(n.name.toLowerCase());
+                    });
+                    if (!elements.length) {
+                        console.log(chalk.red(`Providing a type for the ${this.childKey} prop is a good practice.`));
+                    }
+                    /** 
+                     * supports following syntax:
+                     * propKey: { type: [Number, String], default: 0}
+                    */
+                    this.collect.props[this.childKey].type = elements.length > 1 ? 'typesOfArray' : elements[0] ? elements[0].toLowerCase() : elements;
+                    this.collect.props[this.childKey].value = elements.length > 1 ? elements : elements[0] ? elements[0] : elements;
                 } else {
-                    console.log(chalk.red(`The type in ${this.childKey} prop only supports identifier, eg: Boolean, String`));
+                    console.log(chalk.red(`The type in ${this.childKey} prop only supports identifier or array expression, eg: Boolean, [String]`));
                 }
             }
 
             if (t.isLiteral(node)) {
                 if (key.name === 'default') {
-                    this.collect.props[this.childKey].value = node.value;
+                    if (this.collect.props[this.childKey].type === 'typesOfArray') {
+                        this.collect.props[this.childKey].defaultValue = node.value;
+                    } else {
+                        this.collect.props[this.childKey].value = node.value;
+                    }
                 }
 
                 if (key.name === 'required') {
@@ -88,6 +106,8 @@ exports.collectVueProps = function collectVueProps (path, collect) {
                                 validator: false
                             };
                             path.traverse(nestedPropsVisitor, { collect, childKey });
+                        } else {
+                            console.log(chalk.red(`Not supports expression for the ${this.childKey} prop.`));
                         }
                     }
                 }
