@@ -1,4 +1,5 @@
 const t = require('babel-types');
+const chalk = require('chalk');
 
 const { genDefaultProps, genPropTypes } = require('./utils');
 
@@ -73,7 +74,8 @@ exports.genClassMethods = function genClassMethods (path, collect) {
 exports.genRender = function genRender (path, collect) {
     const nodeLists = path.node.body;
     if (!collect.classMethods['render']) {
-        throw new Error('Must support render method in your vue component');
+        console.log(chalk.red('Must support render method in your vue component'));
+        process.exit();
     }
 
     if (collect.classMethods['render']) {

@@ -39,16 +39,22 @@ const collect = {
 
 babelTraverse(vast, {
     Program (path) {
-        // const nodeLists = path.node.body;
-        // for (let i = 0; i < nodeLists.length; i++) {
-        //     const node = nodeLists[i];
-        //     // const childPath = path.get(`body.${i}`);
-        //     if (t.isExportDefaultDeclaration(node)) {
-        //         const declaration = node.declaration;
-        //         console.log(t.isObjectExpression(declaration));
-        //         break;
-        //     }
-        // }
+        const nodeLists = path.node.body;
+        let count = 0;
+
+        for (let i = 0; i < nodeLists.length; i++) {
+            const node = nodeLists[i];
+            // const childPath = path.get(`body.${i}`);
+            if (t.isExportDefaultDeclaration(node)) {
+                count++;
+            }
+        }
+
+        if (count > 1 || !count) {
+            const msg = !count ? 'Must hava one' : 'Only one';
+            console.log(chalk.red(`${msg} export default declaration in youe vue component file`));
+            process.exit();
+        }
     },
 
     ImportDeclaration (path) {
