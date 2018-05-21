@@ -46,8 +46,17 @@ export default {
             title: 'vue to react',
             msg: 'Hello world',
             time: now,
-            toDolist: this.list
+            toDolist: this.list,
+            error: false
         }
+    },
+
+    created () {
+        const prevTime = this.time;
+        this.xxx();
+        const msg = 'this is a test msg';
+        this.time = Date.now();
+        console.log('mounted', msg, this.time);
     },
 
     render () {
@@ -58,5 +67,26 @@ export default {
                 <Todo list={this.toDolist}></Todo>
             </div>
         )
+    },
+
+    mounted () {
+        this.time = Date.now();
+        console.log('mounted', this.time)
+    },
+
+    updated () {
+        this.time = Date.now();
+        console.log('updated', this.time)
+    },
+
+    beforeDestroy () {
+        this.time = Date.now();
+        console.log('beforeDestroy', this.time);
+    },
+
+    errorCaptured () {
+        this.error = true;
+        this.time = Date.now();
+        console.log('errorCaptured', this.time);
     }
 }

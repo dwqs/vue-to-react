@@ -14,7 +14,8 @@ export default class DemoTest extends Component {
             title: 'vue to react',
             msg: 'Hello world',
             time: now,
-            toDolist: props.list
+            toDolist: props.list,
+            error: false
         };
     }
     static propTypes = {
@@ -33,7 +34,30 @@ export default class DemoTest extends Component {
         obj: { test: '1111', message: 'hello' },
         size: 'small'
     };
-
+    componentWillMount() {
+        const prevTime = this.state.time;
+        this.xxx();
+        const msg = 'this is a test msg';
+        this.setState({ time: Date.now() });
+        console.log('mounted', msg, this.state.time);
+    }
+    componentDidMount() {
+        this.setState({ time: Date.now() });
+        console.log('mounted', this.state.time);
+    }
+    componentDidUpdate() {
+        this.setState({ time: Date.now() });
+        console.log('updated', this.state.time);
+    }
+    componentWillUnmount() {
+        this.setState({ time: Date.now() });
+        console.log('beforeDestroy', this.state.time);
+    }
+    componentDidCatch(error, info) {
+        this.setState({ error: true });
+        this.setState({ time: Date.now() });
+        console.log('errorCaptured', this.state.time);
+    }
     render() {
         return (
             <div>
