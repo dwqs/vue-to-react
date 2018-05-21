@@ -10,8 +10,12 @@ const t = require('babel-types');
 const { parseName } = require('./utils');
 const { 
     genImports, genConstructor, genRender,
-    collectVueProps, genStaticProps
-} = require('./ast-helpers');
+    genStaticProps
+} = require('./react-ast-helpers');
+const { 
+    collectVueProps
+} = require('./vue-ast-helpers');
+
 const output = require('./output');
 
 let componentName = '';
