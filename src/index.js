@@ -4,6 +4,7 @@ const babylon = require('babylon');
 const babelTraverse = require('babel-traverse').default;
 const generate = require('babel-generator').default;
 const t = require('babel-types');
+const chalk = require('chalk');
 // const template = require('babel-template');
 // const compiler = require('vue-template-compiler');
 
@@ -72,6 +73,12 @@ babelTraverse(vast, {
         }
 
         if (path.node.key.name === 'render') {
+            if (path.node.params.length) {
+                console.log(chalk.red(`
+                    [vue-to-react]: Maybe you will call $createElement or h method in your render, but react does not support it.
+                    And it's maybe cause some unknown error in transforming
+                `));
+            }
             path.traverse({
                 ThisExpression (memPath) {
                     memPath.replaceWith(

@@ -73,7 +73,7 @@ exports.genClassMethods = function genClassMethods (path, collect) {
 exports.genRender = function genRender (path, collect) {
     const nodeLists = path.node.body;
     if (!collect.classMethods['render']) {
-        throw new Error('Must supports render method in your vue component');
+        throw new Error('Must support render method in your vue component');
     }
 
     if (collect.classMethods['render']) {
