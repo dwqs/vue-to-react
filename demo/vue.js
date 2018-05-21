@@ -8,6 +8,10 @@ export default {
     name: 'demo-test',
     props: {
         name: [String, Number],
+        count: {
+            type: [String, Number],
+            default: 0
+        },
         shown: {
             type: Boolean,
             default: false

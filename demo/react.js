@@ -18,6 +18,7 @@ export default class DemoTest extends Component {
     }
     static propTypes = {
         name: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         shown: PropTypes.boolean,
         list: PropTypes.array,
         obj: PropTypes.object,
@@ -25,6 +26,7 @@ export default class DemoTest extends Component {
         size: PropTypes.oneOf(['large', 'small'])
     };
     static defaultProps = {
+        count: 0,
         shown: false,
         list: [],
         obj: { test: '1111', message: 'hello' },
