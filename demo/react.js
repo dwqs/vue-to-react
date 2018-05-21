@@ -13,7 +13,8 @@ export default class DemoTest extends Component {
         this.state = {
             title: 'vue to react',
             msg: 'Hello world',
-            time: now
+            time: now,
+            toDolist: props.list
         };
     }
     static propTypes = {
@@ -38,7 +39,7 @@ export default class DemoTest extends Component {
             <div>
                 <p>{this.state.title}</p>
                 <p>{this.state.msg}</p>
-                <Todo />
+                <Todo list={this.state.toDolist} />
             </div>
         );
     }

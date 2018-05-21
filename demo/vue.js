@@ -45,7 +45,8 @@ export default {
         return {
             title: 'vue to react',
             msg: 'Hello world',
-            time: now
+            time: now,
+            toDolist: this.list
         }
     },
 
@@ -54,7 +55,7 @@ export default {
             <div>
                 <p>{this.title}</p>
                 <p>{this.msg}</p>
-                <Todo></Todo>
+                <Todo list={this.toDolist}></Todo>
             </div>
         )
     }

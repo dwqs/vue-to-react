@@ -32,6 +32,14 @@ exports.genConstructor = function genConstructor (path, collect) {
     if (collect.data.length) {
         collect.data.forEach(node => {
             if (t.isReturnStatement(node)) {
+                const props = node.argument.properties;
+                // supports init data property with props property
+                props.forEach(n => {
+                    if (t.isMemberExpression(n.value)) {
+                        n.value = t.memberExpression(t.identifier('props'), t.identifier(n.value.property.name));
+                    }
+                });
+
                 blocks.push(
                     t.expressionStatement(t.assignmentExpression('=', t.memberExpression(t.thisExpression(), t.identifier('state')), node.argument))
                 );
