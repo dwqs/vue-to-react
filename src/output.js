@@ -35,6 +35,7 @@ function output (code) {
                 'no-multiple-empty-lines': [2, { max: 0 }],
                 'key-spacing': [2, { 'afterColon': true }],
                 'block-spacing': [2, 'always'],
+                'space-before-function-paren': [2, 'always'],
                 'padding-line-between-statements': [2, 
                     { 'blankLine': 'always', 'prev': 'import', 'next': 'export' }
                 ],
