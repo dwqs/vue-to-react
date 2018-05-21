@@ -115,3 +115,64 @@ exports.collectVueProps = function collectVueProps (path, collect) {
         });
     }
 };
+
+const nestedMethodsVisitor = {
+    VariableDeclaration (path) {
+        const declarations = path.node.declarations;
+        declarations.forEach(d => {
+            if (t.isMemberExpression(d.init)) {
+                d.init.object = t.memberExpression(t.thisExpression(), t.identifier('state'));
+            }
+        });
+        this.blocks.push(path.node);
+    },
+
+    ExpressionStatement (path) {
+        const expression = path.node.expression;
+        if (t.isAssignmentExpression(expression)) {
+            const right = expression.right;
+            const letfNode = expression.left.property;
+            path.node.expression = t.callExpression(
+                t.memberExpression(t.thisExpression(), t.identifier('setState')),
+                [t.objectExpression([
+                    t.objectProperty(letfNode, right)
+                ])]
+            );
+        }
+
+        if (t.isCallExpression(expression) && !t.isThisExpression(expression.callee.object)) {
+            path.traverse({
+                ThisExpression (memPath) {
+                    if (memPath.parent) {
+                        memPath.replaceWith(
+                            t.memberExpression(t.thisExpression(), t.identifier('state'))
+                        );
+                        memPath.stop();
+                    }
+                }
+            });
+        }
+
+        this.blocks.push(path.node);
+    }
+};
+
+function createClassMethod (path, name) {
+    const body = path.node.body;
+    const blocks = [];
+    let params = [];
+
+    if (name === 'componentDidCatch') {
+        params = [t.identifier('error'), t.identifier('info')];
+    }
+    path.traverse(nestedMethodsVisitor, { blocks });
+    return t.classMethod('method', t.identifier(name), params, t.blockStatement(blocks));
+}
+
+exports.handleCycleMethods = function handleCycleMethods (path, collect, cycle) {
+    const name = path.node.key.name;
+    if (cycle[name]) {
+        const method = createClassMethod(path, cycle[name]);
+        collect.cycle[cycle[name]] = method;
+    }
+};

@@ -68,7 +68,13 @@ exports.genStaticProps = function genStaticProps (path, collect) {
 };
 
 exports.genClassMethods = function genClassMethods (path, collect) {
-    
+    const nodeLists = path.node.body;
+    const cycle = collect.cycle;
+    if (Object.keys(cycle).length) {
+        Object.keys(cycle).forEach(key => {
+            nodeLists.push(cycle[key]);
+        });
+    }
 };
 
 exports.genRender = function genRender (path, collect) {

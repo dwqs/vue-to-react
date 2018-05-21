@@ -11,10 +11,10 @@ const chalk = require('chalk');
 const { parseName } = require('./utils');
 const { 
     genImports, genConstructor, genRender,
-    genStaticProps
+    genStaticProps, genClassMethods
 } = require('./react-ast-helpers');
 const { 
-    collectVueProps
+    collectVueProps, handleCycleMethods
 } = require('./vue-ast-helpers');
 
 const output = require('./output');
@@ -27,6 +27,15 @@ const vast = babylon.parse(source.toString(), {
     sourceType: 'module',
     plugins: ['jsx']
 });
+
+const state = Object.create(null);
+const cycle = {
+    'created': 'componentWillMount',
+    'mounted': 'componentDidMount',
+    'updated': 'componentDidUpdate',
+    'beforeDestroy': 'componentWillUnmount',
+    'errorCaptured': 'componentDidCatch'
+};
 
 const collect = { 
     imports: [],
@@ -73,12 +82,11 @@ babelTraverse(vast, {
     },
 
     ObjectMethod (path) {
-        if (path.node.key.name === 'data') {
+        const name = path.node.key.name;
+        if (name === 'data') {
             const body = path.node.body;
             collect.data = [].concat(body.body);
-        }
-
-        if (path.node.key.name === 'render') {
+        } else if (name === 'render') {
             if (path.node.params.length) {
                 console.log(chalk.red(`
                     [vue-to-react]: Maybe you will call $createElement or h method in your render, but react does not support it.
@@ -94,6 +102,8 @@ babelTraverse(vast, {
                 }
             });
             collect.classMethods[path.node.key.name] = path.node;
+        } else {
+            handleCycleMethods(path, collect, cycle);
         }
     }
 });
@@ -112,6 +122,7 @@ babelTraverse(rast, {
     ClassBody (path) {
         genConstructor(path, collect);
         genStaticProps(path, collect);
+        genClassMethods(path, collect);
         genRender(path, collect);
     }
 });
