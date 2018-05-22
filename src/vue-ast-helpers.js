@@ -39,6 +39,19 @@ const nestedMethodsVisitor = {
         }
 
         this.blocks.push(path.node);
+    },
+
+    ReturnStatement (path) {
+        path.traverse({
+            ThisExpression (memPath) {
+                const key = memPath.parent.property.name;
+                memPath.replaceWith(
+                    t.memberExpression(t.thisExpression(), getIdentifier(this.state, key))
+                );
+                memPath.stop();
+            }
+        }, { state: this.state });
+        this.blocks.push(path.node);
     }
 };
 
@@ -63,9 +76,17 @@ function createRenderMethod (path, state, name) {
     }
     path.traverse({
         ThisExpression (memPath) {
-            memPath.replaceWith(
-                t.memberExpression(t.thisExpression(), t.identifier('state'))
-            );
+            const key = memPath.parent.property.name;
+            if (state.data[key] || state.props[key]) {
+                memPath.replaceWith(
+                    t.memberExpression(t.thisExpression(), getIdentifier(state, key))
+                );
+            } else {
+                // from computed
+                memPath.parentPath.replaceWith(
+                    t.identifier(key)
+                );
+            }
             memPath.stop();
         }
     });
