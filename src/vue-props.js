@@ -106,6 +106,14 @@ module.exports = function collectVueProps (path, state) {
                                 validator: false
                             };
                             path.traverse(nestedPropsVisitor, { state, childKey });
+                        } else if (t.isIdentifier(childVal)) {
+                            // supports propKey: type
+                            state.props[childKey] = {
+                                type: childVal.name.toLowerCase(),
+                                value: undefined,
+                                required: false,
+                                validator: false
+                            };
                         } else {
                             console.log(chalk.red(`Not supports expression for the ${this.childKey} prop in props.`));
                         }
