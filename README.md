@@ -1,4 +1,4 @@
-![npm-version](https://img.shields.io/npm/v/vue-to-react.svg) ![license](https://img.shields.io/npm/l/vue-to-react.svg) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
+![npm-version](https://img.shields.io/npm/v/vue-to-react.svg) ![license](https://img.shields.io/github/license/dwqs/vue-to-react.svg) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
 
 ## vue-to-react
 🛠️ 👉 Try to transform Vue component([jsx syntax](https://github.com/vuejs/babel-plugin-transform-vue-jsx)) to React component.
