@@ -37,13 +37,12 @@
     },
     "dependencies": {
         "babel-generator": "^6.26.1",
-        "babel-template": "^6.26.0",
         "babel-traverse": "^6.26.0",
         "babel-types": "^6.26.0",
         "babylon": "^6.18.0",
         "chalk": "^2.3.2",
-        "prettier-eslint": "^8.8.1",
-        "vue-template-compiler": "^2.5.14"
+        "commander": "^2.15.1",
+        "prettier-eslint": "^8.8.1"
     },
     "devDependencies": {
         "@commitlint/cli": "^6.1.3",
