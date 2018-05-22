@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const format = require('prettier-eslint');
 
-function output (code) {
+function output (code, dist) {
     const opts = {
         text: code,
         eslintConfig: {
@@ -50,7 +50,8 @@ function output (code) {
     };
 
     const formatCode = format(opts);
-    fs.writeFileSync(path.resolve(__dirname, '../demo/react.js'), formatCode);
+    // path.resolve(__dirname, '../demo/react.js')
+    fs.writeFileSync(dist, formatCode);
 }
 
 module.exports = output;

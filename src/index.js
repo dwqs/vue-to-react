@@ -20,13 +20,6 @@ const {
 
 const output = require('./output');
 
-// AST for vue component(jsx syntax)
-const source = fs.readFileSync(path.resolve(__dirname, '../demo/vue.js'));
-const vast = babylon.parse(source.toString(), {
-    sourceType: 'module',
-    plugins: ['jsx']
-});
-
 const state = {
     name: undefined,
     data: {},
@@ -49,52 +42,61 @@ const collect = {
     classMethods: {}
 };
 
-initProps(vast, state);
-initData(vast, state);
-initComputed(vast, state);
+// AST for vue component(jsx syntax)
+module.exports = function transform (src, targetPath) {
+    const source = fs.readFileSync(src);
+    const vast = babylon.parse(source.toString(), {
+        sourceType: 'module',
+        plugins: ['jsx']
+    });
 
-babelTraverse(vast, {
-    ImportDeclaration (path) {
-        collect.imports.push(path.node);
-    },
+    initProps(vast, state);
+    initData(vast, state);
+    initComputed(vast, state);
 
-    ObjectMethod (path) {
-        const name = path.node.key.name;
-        if (path.parentPath.parent.key && path.parentPath.parent.key.name === 'methods') {
-            handleGeneralMethods(path, collect, state, name);
-        } else if (cycle[name]) {
-            handleCycleMethods(path, collect, state, name, cycle[name]);
-        } else {
-            if (name === 'data' || state.computeds[name]) {
-                return;
+    babelTraverse(vast, {
+        ImportDeclaration (path) {
+            collect.imports.push(path.node);
+        },
+    
+        ObjectMethod (path) {
+            const name = path.node.key.name;
+            if (path.parentPath.parent.key && path.parentPath.parent.key.name === 'methods') {
+                handleGeneralMethods(path, collect, state, name);
+            } else if (cycle[name]) {
+                handleCycleMethods(path, collect, state, name, cycle[name]);
+            } else {
+                if (name === 'data' || state.computeds[name]) {
+                    return;
+                }
+                log(`The ${name} method maybe be not support now`);
             }
-            log(`The ${name} method maybe be not support now`);
         }
-    }
-});
-
-// AST for react component
-const tpl = `export default class ${parseName(state.name)} extends Component {}`;
-const rast = babylon.parse(tpl, {
-    sourceType: 'module'
-});
-
-babelTraverse(rast, {
-    Program (path) {
-        genImports(path, collect, state);
-    },
-
-    ClassBody (path) {
-        genConstructor(path, state);
-        genStaticProps(path, state);
-        genClassMethods(path, collect);
-    }
-});
-
-const { code } = generate(rast, {
-    quotes: 'single',
-    retainLines: true
-});
-
-output(code);
-log('Transform successed!!!', 'success');
+    });
+    
+    // AST for react component
+    const tpl = `export default class ${parseName(state.name)} extends Component {}`;
+    const rast = babylon.parse(tpl, {
+        sourceType: 'module'
+    });
+    
+    babelTraverse(rast, {
+        Program (path) {
+            genImports(path, collect, state);
+        },
+    
+        ClassBody (path) {
+            genConstructor(path, state);
+            genStaticProps(path, state);
+            genClassMethods(path, collect);
+        }
+    });
+    
+    const { code } = generate(rast, {
+        quotes: 'single',
+        retainLines: true
+    });
+    
+    output(code, targetPath);
+    log('Transform successed!!!', 'success');
+};
