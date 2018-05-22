@@ -3,7 +3,7 @@ const chalk = require('chalk');
 
 const { genDefaultProps, genPropTypes } = require('./utils');
 
-exports.genImports = function genImports (path, collect) {
+exports.genImports = function genImports (path, collect, state) {
     const nodeLists = path.node.body;
     const importReact = t.importDeclaration(
         [
@@ -12,7 +12,7 @@ exports.genImports = function genImports (path, collect) {
         ],
         t.stringLiteral('react')
     );
-    if (Object.keys(collect.props).length) {
+    if (Object.keys(state.props).length) {
         const importPropTypes = t.importDeclaration(
             [
                 t.importDefaultSpecifier(t.identifier('PropTypes'))
@@ -25,13 +25,13 @@ exports.genImports = function genImports (path, collect) {
     collect.imports.forEach(node => nodeLists.unshift(node));
 };
 
-exports.genConstructor = function genConstructor (path, collect) {
+exports.genConstructor = function genConstructor (path, state) {
     const nodeLists = path.node.body;
     const blocks = [
         t.expressionStatement(t.callExpression(t.super(), [t.identifier('props')]))
     ];
-    if (collect.data.length) {
-        collect.data.forEach(node => {
+    if (state.data['_statements']) {
+        state.data['_statements'].forEach(node => {
             if (t.isReturnStatement(node)) {
                 const props = node.argument.properties;
                 // supports init data property with props property
@@ -58,8 +58,8 @@ exports.genConstructor = function genConstructor (path, collect) {
     nodeLists.push(ctro);
 };
 
-exports.genStaticProps = function genStaticProps (path, collect) {
-    const props = collect.props;
+exports.genStaticProps = function genStaticProps (path, state) {
+    const props = state.props;
     const nodeLists = path.node.body;
     if (Object.keys(props).length) {
         nodeLists.push(genPropTypes(props));
@@ -69,22 +69,10 @@ exports.genStaticProps = function genStaticProps (path, collect) {
 
 exports.genClassMethods = function genClassMethods (path, collect) {
     const nodeLists = path.node.body;
-    const cycle = collect.cycle;
-    if (Object.keys(cycle).length) {
-        Object.keys(cycle).forEach(key => {
-            nodeLists.push(cycle[key]);
+    const methods = collect.classMethods;
+    if (Object.keys(methods).length) {
+        Object.keys(methods).forEach(key => {
+            nodeLists.push(methods[key]);
         });
-    }
-};
-
-exports.genRender = function genRender (path, collect) {
-    const nodeLists = path.node.body;
-    if (!collect.classMethods['render']) {
-        console.log(chalk.red('Must support render method in your vue component'));
-        process.exit();
-    }
-
-    if (collect.classMethods['render']) {
-        nodeLists.push(collect.classMethods['render']);
     }
 };

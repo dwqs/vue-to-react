@@ -4,22 +4,21 @@ const babylon = require('babylon');
 const babelTraverse = require('babel-traverse').default;
 const generate = require('babel-generator').default;
 const t = require('babel-types');
-const chalk = require('chalk');
 // const template = require('babel-template');
 // const compiler = require('vue-template-compiler');
 
-const { parseName } = require('./utils');
+const collectCompState = require('./collect-state');
+const { parseName, log } = require('./utils');
 const { 
-    genImports, genConstructor, genRender,
+    genImports, genConstructor,
     genStaticProps, genClassMethods
 } = require('./react-ast-helpers');
 const { 
-    collectVueProps, handleCycleMethods
+    collectVueProps, handleCycleMethods, 
+    handleGeneralMethods
 } = require('./vue-ast-helpers');
 
 const output = require('./output');
-
-let componentName = '';
 
 // AST for vue component(jsx syntax)
 const source = fs.readFileSync(path.resolve(__dirname, '../demo/vue.js'));
@@ -28,102 +27,65 @@ const vast = babylon.parse(source.toString(), {
     plugins: ['jsx']
 });
 
-const state = Object.create(null);
+const state = {
+    name: undefined,
+    data: {},
+    props: {},
+    computeds: {}
+};
+
+// Life-cycle methods relations mapping
 const cycle = {
     'created': 'componentWillMount',
     'mounted': 'componentDidMount',
     'updated': 'componentDidUpdate',
     'beforeDestroy': 'componentWillUnmount',
-    'errorCaptured': 'componentDidCatch'
+    'errorCaptured': 'componentDidCatch',
+    'render': 'render'
 };
 
 const collect = { 
     imports: [],
-    data: [],
-    classMethods: {},
-    props: {},
-    computeds: {},
-    cycle: {}
+    classMethods: {}
 };
 
+collectCompState(vast, state);
+
 babelTraverse(vast, {
-    Program (path) {
-        const nodeLists = path.node.body;
-        let count = 0;
-
-        for (let i = 0; i < nodeLists.length; i++) {
-            const node = nodeLists[i];
-            // const childPath = path.get(`body.${i}`);
-            if (t.isExportDefaultDeclaration(node)) {
-                count++;
-            }
-        }
-
-        if (count > 1 || !count) {
-            const msg = !count ? 'Must hava one' : 'Only one';
-            console.log(chalk.red(`${msg} export default declaration in youe vue component file`));
-            process.exit();
-        }
-    },
-
     ImportDeclaration (path) {
         collect.imports.push(path.node);
     },
 
-    ObjectProperty (path) {
-        const name = path.node.key.name;
-        if (name === 'name' && t.isStringLiteral(path.node.value)) {
-            componentName = path.node.value.value;
-        }
-
-        if (name === 'props') {
-            collectVueProps(path, collect);
-        }
-    },
-
     ObjectMethod (path) {
         const name = path.node.key.name;
-        if (name === 'data') {
-            const body = path.node.body;
-            collect.data = [].concat(body.body);
-        } else if (name === 'render') {
-            if (path.node.params.length) {
-                console.log(chalk.red(`
-                    [vue-to-react]: Maybe you will call $createElement or h method in your render, but react does not support it.
-                    And it's maybe cause some unknown error in transforming
-                `));
-            }
-            path.traverse({
-                ThisExpression (memPath) {
-                    memPath.replaceWith(
-                        t.memberExpression(t.thisExpression(), t.identifier('state'))
-                    );
-                    memPath.stop();
-                }
-            });
-            collect.classMethods[path.node.key.name] = path.node;
+        if (path.parentPath.parent.key && path.parentPath.parent.key.name === 'methods') {
+            handleGeneralMethods(path, collect, state, name);
+        } else if (cycle[name]) {
+            handleCycleMethods(path, collect, state, name, cycle[name]);
         } else {
-            handleCycleMethods(path, collect, cycle);
+            if (name === 'data' || state.computeds[name]) {
+                return;
+            }
+            log(`The ${name} method maybe be not support now`);
         }
     }
 });
 
 // AST for react component
-const tpl = `export default class ${parseName(componentName)} extends Component {}`;
+const tpl = `export default class ${parseName(state.name)} extends Component {}`;
 const rast = babylon.parse(tpl, {
     sourceType: 'module'
 });
 
 babelTraverse(rast, {
     Program (path) {
-        genImports(path, collect);
+        genImports(path, collect, state);
     },
 
     ClassBody (path) {
-        genConstructor(path, collect);
-        genStaticProps(path, collect);
+        genConstructor(path, state);
+        genStaticProps(path, state);
         genClassMethods(path, collect);
-        genRender(path, collect);
     }
 });
 
@@ -133,3 +95,4 @@ const { code } = generate(rast, {
 });
 
 output(code);
+log('Transform successed!!!', 'success');
