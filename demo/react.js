@@ -35,7 +35,12 @@ export default class DemoTest extends Component {
         size: 'small'
     };
     testMethod() {
-        console.log('testMethod');
+        console.log('testMethod', this.props.obj);
+        return this.state.title;
+    }
+    outputTitle() {
+        const title = this.testMethod();
+        console.log('testMethod', title);
     }
     componentWillMount() {
         const prevTime = this.state.time;
@@ -49,13 +54,15 @@ export default class DemoTest extends Component {
         console.log('from computed', this.props.name, prevTime);
         const text = `${this.state.title}: ${this.state.msg}`;
 
+        console.log('render');
         if (this.state.error) {
             return <h1>some error happend</h1>;
         }
 
         return (
             <div>
-                <p>{this.state.text}</p>
+                <p>{text}</p>
+                <p>Total: {this.props.count}</p>
                 <Todo list={this.state.toDolist} />
             </div>
         );
@@ -66,7 +73,7 @@ export default class DemoTest extends Component {
     }
     componentDidUpdate() {
         this.setState({ time: Date.now() });
-        console.log('updated', this.state.time);
+        console.log('updated, props prop', this.props.shown);
     }
     componentWillUnmount() {
         this.setState({ time: Date.now() });

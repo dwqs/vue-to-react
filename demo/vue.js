@@ -62,8 +62,14 @@ export default {
 
     methods: {
     	testMethod () {
-           console.log('testMethod');
-        }
+           console.log('testMethod', this.obj);
+           return this.title;
+        },
+
+        outputTitle () {
+            const title = this.testMethod();
+            console.log('testMethod', title);
+         }
     },
 
     created () {
@@ -75,6 +81,7 @@ export default {
     },
 
     render () {
+        console.log('render');
         if (this.error) {
             return <h1>some error happend</h1>
         }
@@ -82,6 +89,7 @@ export default {
         return (
             <div>
                 <p>{this.text}</p>
+                <p>Total: {this.count}</p>
                 <Todo list={this.toDolist}></Todo>
             </div>
         )
@@ -94,7 +102,7 @@ export default {
 
     updated () {
         this.time = Date.now();
-        console.log('updated', this.time)
+        console.log('updated, props prop', this.shown)
     },
 
     beforeDestroy () {
