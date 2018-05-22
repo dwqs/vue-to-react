@@ -1,12 +1,13 @@
 const t = require('babel-types');
-const { log } = require('./utils');
+const { log, getIdentifier } = require('./utils');
 
 const nestedMethodsVisitor = {
     VariableDeclaration (path) {
         const declarations = path.node.declarations;
         declarations.forEach(d => {
             if (t.isMemberExpression(d.init)) {
-                d.init.object = t.memberExpression(t.thisExpression(), t.identifier('state'));
+                const key = d.init.property.name;
+                d.init.object = t.memberExpression(t.thisExpression(), getIdentifier(this.state, key));
             }
         });
         this.blocks.push(path.node);
@@ -28,12 +29,13 @@ const nestedMethodsVisitor = {
         if (t.isCallExpression(expression) && !t.isThisExpression(expression.callee.object)) {
             path.traverse({
                 ThisExpression (memPath) {
+                    const key = memPath.parent.property.name;
                     memPath.replaceWith(
-                        t.memberExpression(t.thisExpression(), t.identifier('state'))
+                        t.memberExpression(t.thisExpression(), getIdentifier(this.state, key))
                     );
                     memPath.stop();
                 }
-            });
+            }, { state: this.state });
         }
 
         this.blocks.push(path.node);
