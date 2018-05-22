@@ -45,7 +45,7 @@ exports.genPropTypes = function genPropTypes (props) {
                 );
             } else {
                 val = obj.required 
-                    ? t.memberExpression(t.identifier('PropTypes'), t.identifier('array'), t.identifier('isRequired'))
+                    ? t.memberExpression(t.memberExpression(t.identifier('PropTypes'), t.identifier('array')), t.identifier('isRequired'))
                     : t.memberExpression(t.identifier('PropTypes'), t.identifier('array'));
             }
         } else if (obj.validator) {
@@ -63,7 +63,7 @@ exports.genPropTypes = function genPropTypes (props) {
             }
         } else {
             val = obj.required 
-                ? t.memberExpression(t.identifier('PropTypes'), t.identifier(obj.type), t.identifier('isRequired'))
+                ? t.memberExpression(t.memberExpression(t.identifier('PropTypes'), t.identifier(obj.type)), t.identifier('isRequired'))
                 : t.memberExpression(t.identifier('PropTypes'), t.identifier(obj.type));
         }
 
