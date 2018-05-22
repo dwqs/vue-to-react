@@ -34,12 +34,31 @@ export default class DemoTest extends Component {
         obj: { test: '1111', message: 'hello' },
         size: 'small'
     };
+    testMethod() {
+        console.log('testMethod');
+    }
     componentWillMount() {
         const prevTime = this.state.time;
-        this.xxx();
+        this.testMethod();
         const msg = 'this is a test msg';
         this.setState({ time: Date.now() });
         console.log('mounted', msg, this.state.time);
+    }
+    render() {
+        const prevTime = this.state.time;
+        console.log('from computed', this.props.name, prevTime);
+        const text = `${this.state.title}: ${this.state.msg}`;
+
+        if (this.state.error) {
+            return <h1>some error happend</h1>;
+        }
+
+        return (
+            <div>
+                <p>{this.state.text}</p>
+                <Todo list={this.state.toDolist} />
+            </div>
+        );
     }
     componentDidMount() {
         this.setState({ time: Date.now() });
@@ -57,14 +76,5 @@ export default class DemoTest extends Component {
         this.setState({ error: true });
         this.setState({ time: Date.now() });
         console.log('errorCaptured', this.state.time);
-    }
-    render() {
-        return (
-            <div>
-                <p>{this.state.title}</p>
-                <p>{this.state.msg}</p>
-                <Todo list={this.state.toDolist} />
-            </div>
-        );
     }
 }

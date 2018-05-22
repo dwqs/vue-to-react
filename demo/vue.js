@@ -51,19 +51,37 @@ export default {
         }
     },
 
+    computed: {
+    	text () {
+            const prevTime = this.time;
+            this.test = 'sdas';
+            console.log('from computed', this.name, prevTime);
+        	return `${this.title}: ${this.msg}`;
+        }
+    },
+
+    methods: {
+    	testMethod () {
+           console.log('testMethod');
+        }
+    },
+
     created () {
         const prevTime = this.time;
-        this.xxx();
+        this.testMethod();
         const msg = 'this is a test msg';
         this.time = Date.now();
         console.log('mounted', msg, this.time);
     },
 
     render () {
+        if (this.error) {
+            return <h1>some error happend</h1>
+        }
+
         return (
             <div>
-                <p>{this.title}</p>
-                <p>{this.msg}</p>
+                <p>{this.text}</p>
                 <Todo list={this.toDolist}></Todo>
             </div>
         )
