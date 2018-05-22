@@ -102,7 +102,7 @@ computed: {
 // ...
 
 render () {
-    const test = this.title + this.msg;
+    const test = this.state.title + this.state.msg;
 }
 
 // ...
