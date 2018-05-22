@@ -131,5 +131,72 @@ export default class DemoTest extends Component {
 }
 ```
 
+## Attention
+The following list you should be pay attention when you are using vue-to-react to transform a vue component to react component:
+
+* Only supprts **jsx syntax** of vue component, don't support [SFC](https://vuejs.org/v2/guide/single-file-components.html) . See [jsx in vue](https://github.com/vuejs/babel-plugin-transform-vue-jsx)
+* Not support `watch` prop of vue component
+* Not support `components` prop of vue component. See [component tip](https://github.com/vuejs/babel-plugin-transform-vue-jsx#component-tip)
+* Only supports partial lift-cycle methods of vue component. Lift-cycle relations mapping as follows: 
+
+```js
+// Life-cycle methods relations mapping
+const cycle = {
+    'created': 'componentWillMount',
+    'mounted': 'componentDidMount',
+    'updated': 'componentDidUpdate',
+    'beforeDestroy': 'componentWillUnmount',
+    'errorCaptured': 'componentDidCatch',
+    'render': 'render'
+};
+```
+
+* Each computed prop should be function: 
+
+```js
+// ...
+
+computed: {
+    // support
+    test () {
+        return your-computed-value;
+    },
+
+    // not support
+    test2: {
+        get () {},
+        set () {}
+    }
+}
+
+// ...
+```
+
+* Computed prop of vue component will be put into the render method of react component:
+
+```js
+// vue component
+// ...
+
+computed: {
+    // support
+    test () {
+        this.title = 'messages'; // Don't do this, it won't be handle and you will receive a warning.
+        return this.title + this.msg;
+    }
+}
+
+// ...
+
+// react component
+// ...
+
+render () {
+    const test = this.title + this.msg;
+}
+
+// ...
+```
+
 ## LICENSE
 MIT
