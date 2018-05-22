@@ -9,8 +9,7 @@ const collectVueComputed = require('./vue-computed');
  * Collect vue component state(data prop, props prop & computed prop)
  * Don't support watch prop of vue component
  */
-
-module.exports = function collectCompState (ast, state) {
+exports.initProps = function initProps (ast, state) {
     babelTraverse(ast, {
         Program (path) {
             const nodeLists = path.node.body;
@@ -43,17 +42,23 @@ module.exports = function collectCompState (ast, state) {
                     }
                 } else if (name === 'props') {
                     collectVueProps(path, state);
-                } else if (name === 'computed') {
-                    collectVueComputed(path, state);
-                } else {
-                    if (name === 'methods') {
-                        return;
-                    }
-                    log(`Not support the ${name} prop of vue component`);
-                }
+                    path.stop();
+                } 
+                // else if (name === 'computed') {
+                //     collectVueComputed(path, state);
+                // } else {
+                //     if (name === 'methods') {
+                //         return;
+                //     }
+                //     log(`Not support the ${name} prop of vue component`);
+                // }
             }
-        },
+        }
+    });
+};
 
+exports.initData = function initData (ast, state) {
+    babelTraverse(ast, {
         ObjectMethod (path) {
             const parent = path.parentPath.parent;
             const name = path.node.key.name;
@@ -73,6 +78,22 @@ module.exports = function collectCompState (ast, state) {
                     propNodes.forEach(propNode => {
                         state.data[propNode.key.name] = propNode.value;
                     });
+                    path.stop();
+                }
+            }
+        }
+    });
+};
+
+exports.initComputed = function initComputed (ast, state) {
+    babelTraverse(ast, {
+        ObjectProperty (path) {
+            const parent = path.parentPath.parent;
+            const name = path.node.key.name;
+            if (parent && t.isExportDefaultDeclaration(parent)) {
+                if (name === 'computed') {
+                    collectVueComputed(path, state);
+                    path.stop();
                 }
             }
         }

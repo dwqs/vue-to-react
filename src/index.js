@@ -7,7 +7,7 @@ const t = require('babel-types');
 // const template = require('babel-template');
 // const compiler = require('vue-template-compiler');
 
-const collectCompState = require('./collect-state');
+const { initProps, initData, initComputed } = require('./collect-state');
 const { parseName, log } = require('./utils');
 const { 
     genImports, genConstructor,
@@ -49,7 +49,9 @@ const collect = {
     classMethods: {}
 };
 
-collectCompState(vast, state);
+initProps(vast, state);
+initData(vast, state);
+initComputed(vast, state);
 
 babelTraverse(vast, {
     ImportDeclaration (path) {
