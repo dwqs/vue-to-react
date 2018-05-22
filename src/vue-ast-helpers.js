@@ -77,7 +77,13 @@ function createRenderMethod (path, state, name) {
     path.traverse({
         ThisExpression (thisPath) {
             const parentNode = thisPath.parentPath.parentPath.parent;
-            const isValid = t.isJSXElement(parentNode) || t.isCallExpression(parentNode) || (t.isJSXAttribute(parentNode) && !parentNode.name.name.startsWith('on'));
+            const isValid = t.isExpressionStatement(parentNode) || 
+                t.isVariableDeclaration(parentNode) ||
+                t.isBlockStatement(parentNode) || 
+                t.isJSXElement(parentNode) || 
+                t.isCallExpression(parentNode) || 
+                (t.isJSXAttribute(parentNode) && !parentNode.name.name.startsWith('on'));
+
             if (isValid) {
                 // prop
                 const key = thisPath.parent.property.name;
