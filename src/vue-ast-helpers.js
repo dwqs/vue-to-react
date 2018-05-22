@@ -75,19 +75,29 @@ function createRenderMethod (path, state, name) {
         `);
     }
     path.traverse({
-        ThisExpression (memPath) {
-            const key = memPath.parent.property.name;
-            if (state.data[key] || state.props[key]) {
-                memPath.replaceWith(
-                    t.memberExpression(t.thisExpression(), getIdentifier(state, key))
-                );
-            } else {
-                // from computed
-                memPath.parentPath.replaceWith(
-                    t.identifier(key)
+        ThisExpression (thisPath) {
+            if (t.isJSXElement(thisPath.parentPath.parentPath.parent)) {
+                const key = thisPath.parent.property.name;
+                if (state.data[key] || state.props[key]) {
+                    thisPath.replaceWith(
+                        t.memberExpression(t.thisExpression(), getIdentifier(state, key))
+                    );
+                } else {
+                    // from computed
+                    thisPath.parentPath.replaceWith(
+                        t.identifier(key)
+                    );
+                }
+                thisPath.stop();
+            }
+        },
+        JSXAttribute (attrPath) {
+            const attrNode = attrPath.node;
+            if (attrNode.name.name === 'class') {
+                attrPath.replaceWith(
+                    t.jSXAttribute(t.jSXIdentifier('className'), attrNode.value)
                 );
             }
-            memPath.stop();
         }
     });
     let blocks = [];
