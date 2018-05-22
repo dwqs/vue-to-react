@@ -1,4 +1,5 @@
 const t = require('babel-types');
+const chalk = require('chalk');
 
 exports.parseName = function parseName (name) {
     name = name || 'my-react-compoennt';
@@ -9,6 +10,17 @@ exports.parseName = function parseName (name) {
         str += v;
     });
     return str;
+};
+
+exports.log = function log (msg, type = 'error') {
+    if (type === 'error') {
+        return console.log(chalk.red(`[vue-to-react]: ${msg}`));
+    }
+    console.log(chalk.green(msg));
+};
+
+exports.getIdentifier = function getIdentifier (state, key) {
+    return state.data[key] ? t.identifier('state') : t.identifier('props');
 };
 
 exports.genPropTypes = function genPropTypes (props) {
