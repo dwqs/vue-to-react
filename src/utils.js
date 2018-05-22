@@ -49,10 +49,18 @@ exports.genPropTypes = function genPropTypes (props) {
                     : t.memberExpression(t.identifier('PropTypes'), t.identifier('array'));
             }
         } else if (obj.validator) {
-            val = t.callExpression(
+            const node = t.callExpression(
                 t.memberExpression(t.identifier('PropTypes'), t.identifier('oneOf')),
                 [t.arrayExpression(obj.validator.elements)]
             );
+            if (obj.required) {
+                val = t.memberExpression(
+                    node,
+                    t.identifier('isRequired')
+                );
+            } else {
+                val = node;
+            }
         } else {
             val = obj.required 
                 ? t.memberExpression(t.identifier('PropTypes'), t.identifier(obj.type), t.identifier('isRequired'))

@@ -24,7 +24,7 @@ export default class DemoTest extends Component {
         shown: PropTypes.boolean,
         list: PropTypes.array,
         obj: PropTypes.object,
-        level: PropTypes.oneOf([1, 2, 3]),
+        level: PropTypes.oneOf([1, 2, 3]).isRequired,
         size: PropTypes.oneOf(['large', 'small'])
     };
     static defaultProps = {
