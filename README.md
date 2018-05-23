@@ -64,7 +64,7 @@ const cycle = {
 };
 ```
 
-* Each computed prop should be function: 
+* Each computed prop should be a function: 
 
 ```js
 // ...
