@@ -67,6 +67,20 @@ function createClassMethod (path, state, name) {
     return t.classMethod('method', t.identifier(name), params, t.blockStatement(blocks));
 }
 
+function replaceThisExpression (path, key, state) {
+    if (state.data[key] || state.props[key]) {
+        path.replaceWith(
+            t.memberExpression(t.thisExpression(), getIdentifier(state, key))
+        );
+    } else {
+        // from computed
+        path.parentPath.replaceWith(
+            t.identifier(key)
+        );
+    }
+    path.stop();
+}
+
 function createRenderMethod (path, state, name) {
     if (path.node.params.length) {
         log(`
@@ -87,17 +101,7 @@ function createRenderMethod (path, state, name) {
             if (isValid) {
                 // prop
                 const key = thisPath.parent.property.name;
-                if (state.data[key] || state.props[key]) {
-                    thisPath.replaceWith(
-                        t.memberExpression(t.thisExpression(), getIdentifier(state, key))
-                    );
-                } else {
-                    // from computed
-                    thisPath.parentPath.replaceWith(
-                        t.identifier(key)
-                    );
-                }
-                thisPath.stop();
+                replaceThisExpression(thisPath, key, state);
             }
         },
         JSXAttribute (attrPath) {
@@ -106,6 +110,35 @@ function createRenderMethod (path, state, name) {
                 attrPath.replaceWith(
                     t.jSXAttribute(t.jSXIdentifier('className'), attrNode.value)
                 );
+            }
+
+            if (attrNode.name.name === 'domPropsInnerHTML') {
+                const v = attrNode.value;
+                if (t.isLiteral(v)) {
+                    attrPath.replaceWith(
+                        t.jSXAttribute(
+                            t.jSXIdentifier('dangerouslySetInnerHTML'), 
+                            t.jSXExpressionContainer(t.objectExpression([t.objectProperty(t.identifier('__html'), attrNode.value)]))
+                        )
+                    );
+                } else if (t.isJSXExpressionContainer(v)) {
+                    const expression = v.expression;
+                    if (t.isMemberExpression(expression)) {
+                        attrPath.traverse({
+                            ThisExpression (thisPath) {
+                                const key = thisPath.parent.property.name;
+                                replaceThisExpression(thisPath, key, state);
+                            }
+                        });
+                    } else {
+                        attrPath.replaceWith(
+                            t.jSXAttribute(
+                                t.jSXIdentifier('dangerouslySetInnerHTML'), 
+                                t.jSXExpressionContainer(t.objectExpression([t.objectProperty(t.identifier('__html'), expression)]))
+                            )
+                        );
+                    }
+                }
             }
         }
     });
