@@ -119,4 +119,4 @@ render () {
 5. Create new Pull Request
 
 ## LICENSE
-MIT
+This repo is released under the [MIT](http://opensource.org/licenses/MIT).
