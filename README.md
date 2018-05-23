@@ -4,6 +4,9 @@
 🛠️ 👉 Try to transform Vue component([jsx syntax](https://github.com/vuejs/babel-plugin-transform-vue-jsx)) to React component.
 >It is under developing, so it's not stable now. The 1st stable version will come soon and be released v1.0.0.
 
+## Preview screenshots
+![image](https://user-images.githubusercontent.com/7871813/40401477-1f9fc6c2-5e79-11e8-8f41-a558d594220f.png)
+
 ### Install
 Prerequisites: [Node.js](https://nodejs.org/en/) (>=8.0) and [NPM](https://www.npmjs.com/) (>=5.0)
 
@@ -108,8 +111,12 @@ render () {
 // ...
 ```
 
-## Thanks
-Thanks to [react-to-vue](https://github.com/vicwang163/react-to-vue) for the head start.
+## Development
+1. Fork it
+2. Create your feature branch (git checkout -b my-new-feature)
+3. Commit your changes (git commit -am 'Add some feature')
+4. Push to the branch (git push origin my-new-feature)
+5. Create new Pull Request
 
 ## LICENSE
 MIT
