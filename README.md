@@ -5,7 +5,7 @@
 >It is under developing, so it's not stable now. The 1st stable version will come soon and be released v1.0.0.
 
 ## Preview screenshots
-![image](https://user-images.githubusercontent.com/7871813/40401477-1f9fc6c2-5e79-11e8-8f41-a558d594220f.png)
+![image](https://user-images.githubusercontent.com/7871813/40406386-0bfc0396-5e93-11e8-9f74-7a45d2694ae9.png)
 
 ### Install
 Prerequisites: [Node.js](https://nodejs.org/en/) (>=8.0) and [NPM](https://www.npmjs.com/) (>=5.0)
