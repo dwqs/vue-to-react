@@ -1,6 +1,8 @@
 const t = require('babel-types');
 const chalk = require('chalk');
 
+const { log } = require('./utils');
+
 const nestedPropsVisitor = {
     ObjectProperty (path) {
         const parentKey = path.parentPath.parent.key;
@@ -17,7 +19,7 @@ const nestedPropsVisitor = {
                         elements.push(n.name.toLowerCase());
                     });
                     if (!elements.length) {
-                        console.log(chalk.red(`Providing a type for the ${this.childKey} prop is a good practice.`));
+                        log(`Providing a type for the ${this.childKey} prop is a good practice.`);
                     }
                     /** 
                      * supports following syntax:
@@ -26,7 +28,7 @@ const nestedPropsVisitor = {
                     this.state.props[this.childKey].type = elements.length > 1 ? 'typesOfArray' : elements[0] ? elements[0].toLowerCase() : elements;
                     this.state.props[this.childKey].value = elements.length > 1 ? elements : elements[0] ? elements[0] : elements;
                 } else {
-                    console.log(chalk.red(`The type in ${this.childKey} prop only supports identifier or array expression, eg: Boolean, [String]`));
+                    log(`The type in ${this.childKey} prop only supports identifier or array expression, eg: Boolean, [String]`);
                 }
             }
 
@@ -115,7 +117,7 @@ module.exports = function collectVueProps (path, state) {
                                 validator: false
                             };
                         } else {
-                            console.log(chalk.red(`Not supports expression for the ${this.childKey} prop in props.`));
+                            log(`Not supports expression for the ${this.childKey} prop in props.`);
                         }
                     }
                 }
