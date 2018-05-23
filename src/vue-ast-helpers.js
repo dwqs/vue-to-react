@@ -130,14 +130,13 @@ function createRenderMethod (path, state, name) {
                                 replaceThisExpression(thisPath, key, state);
                             }
                         });
-                    } else {
-                        attrPath.replaceWith(
-                            t.jSXAttribute(
-                                t.jSXIdentifier('dangerouslySetInnerHTML'), 
-                                t.jSXExpressionContainer(t.objectExpression([t.objectProperty(t.identifier('__html'), expression)]))
-                            )
-                        );
                     }
+                    attrPath.replaceWith(
+                        t.jSXAttribute(
+                            t.jSXIdentifier('dangerouslySetInnerHTML'), 
+                            t.jSXExpressionContainer(t.objectExpression([t.objectProperty(t.identifier('__html'), expression)]))
+                        )
+                    );
                 }
             }
         }
