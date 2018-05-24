@@ -4,11 +4,10 @@ const babylon = require('babylon');
 const babelTraverse = require('babel-traverse').default;
 const generate = require('babel-generator').default;
 const t = require('babel-types');
-// const template = require('babel-template');
-// const compiler = require('vue-template-compiler');
+const compiler = require('vue-template-compiler');
 
-const { initProps, initData, initComputed } = require('./collect-state');
-const { parseName, log } = require('./utils');
+const { initProps, initData, initComputed, initComponents } = require('./collect-state');
+const { parseName, log, parseComponentName } = require('./utils');
 const { 
     genImports, genConstructor,
     genStaticProps, genClassMethods
@@ -17,14 +16,17 @@ const {
     collectVueProps, handleCycleMethods, 
     handleGeneralMethods
 } = require('./vue-ast-helpers');
+const { genSFCRenderMethod } = require('./sfc/sfc-ast-helpers');
 
 const output = require('./output');
+const traverseTemplate = require('./sfc/index');
 
 const state = {
     name: undefined,
     data: {},
     props: {},
-    computeds: {}
+    computeds: {},
+    components: {}
 };
 
 // Life-cycle methods relations mapping
@@ -42,17 +44,35 @@ const collect = {
     classMethods: {}
 };
 
-// AST for vue component(jsx syntax)
-module.exports = function transform (src, targetPath) {
+function formatContent (source, isSFC) {
+    if (isSFC) {
+        const res = compiler.parseComponent(source, { pad: 'line' });
+        return {
+            template: res.template.content.replace(/{{/g, '{').replace(/}}/g, '}'),
+            js: res.script.content.replace(/\/\//g, '')
+        };
+    } else {
+        return {
+            template: null,
+            js: source
+        };
+    }
+}
+
+// AST for vue component
+module.exports = function transform (src, targetPath, isSFC) {
     const source = fs.readFileSync(src);
-    const vast = babylon.parse(source.toString(), {
+    const component = formatContent(source.toString(), isSFC);
+
+    const vast = babylon.parse(component.js, {
         sourceType: 'module',
-        plugins: ['jsx']
+        plugins: isSFC ? [] : ['jsx']
     });
 
     initProps(vast, state);
     initData(vast, state);
     initComputed(vast, state);
+    initComponents(vast, state); // SFC
 
     babelTraverse(vast, {
         ImportDeclaration (path) {
@@ -64,7 +84,7 @@ module.exports = function transform (src, targetPath) {
             if (path.parentPath.parent.key && path.parentPath.parent.key.name === 'methods') {
                 handleGeneralMethods(path, collect, state, name);
             } else if (cycle[name]) {
-                handleCycleMethods(path, collect, state, name, cycle[name]);
+                handleCycleMethods(path, collect, state, name, cycle[name], isSFC);
             } else {
                 if (name === 'data' || state.computeds[name]) {
                     return;
@@ -73,6 +93,12 @@ module.exports = function transform (src, targetPath) {
             }
         }
     });
+
+    let renderArgument = null;
+    if (isSFC) {
+        // traverse template in sfc
+        renderArgument = traverseTemplate(component.template, state);
+    }
     
     // AST for react component
     const tpl = `export default class ${parseName(state.name)} extends Component {}`;
@@ -89,8 +115,31 @@ module.exports = function transform (src, targetPath) {
             genConstructor(path, state);
             genStaticProps(path, state);
             genClassMethods(path, collect);
+            isSFC && genSFCRenderMethod(path, state, renderArgument);
         }
     });
+
+    if (isSFC) {
+        // replace custom element/component
+        babelTraverse(rast, {
+            ClassMethod (path) {
+                if (path.node.key.name === 'render') {
+                    path.traverse({
+                        JSXIdentifier (path) {
+                            if (t.isJSXClosingElement(path.parent) || t.isJSXOpeningElement(path.parent)) {
+                                const node = path.node;
+                                const componentName = state.components[node.name] || state.components[parseComponentName(node.name)];
+                                if (componentName) {
+                                    path.replaceWith(t.jSXIdentifier(componentName));
+                                    path.stop();
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
     
     const { code } = generate(rast, {
         quotes: 'single',

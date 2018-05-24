@@ -40,13 +40,14 @@ help();
 
 let src = program.args[0];
 let dist = program.args[1] ? program.args[1] : process.cwd();
-let name = program.args[2] ? (program.args[2]) : 'react.js';
+let name = program.args[2] ? program.args[2] : 'react.js';
 
 src = path.resolve(process.cwd(), src);
 dist = path.resolve(process.cwd(), dist);
 
-if (!/\.js$/.test(src)) {
-    src += '.js';
+if (!/(\.js|\.vue)$/.test(src)) {
+    log(`Not support the file format: ${src}`);
+    process.exit();
 }
 
 if (!fs.existsSync(src)) {
@@ -60,7 +61,7 @@ if (!fs.statSync(src).isFile()) {
 }
 
 if (!fs.existsSync(dist)) {
-    log(`The dist directory dose not exist: ${dist}`);
+    log(`The dist directory path dose not exist: ${dist}`);
     process.exit();
 }
 
@@ -68,6 +69,7 @@ if (!/\.js$/.test(name)) {
     name += '.js';
 }
 
+const isSFC = /\.vue$/.test(src);
 const targetPath = path.resolve(process.cwd(), path.join(dist, name));
 
 if (fs.existsSync(targetPath)) {
@@ -77,11 +79,11 @@ if (fs.existsSync(targetPath)) {
         name: 'ok'
     }]).then((answers) => {
         if (answers.ok) {
-            transform(src, targetPath);
+            transform(src, targetPath, isSFC);
         } else {
             process.exit();
         }
     });
 } else {
-    transform(src, targetPath);
+    transform(src, targetPath, isSFC);
 }
