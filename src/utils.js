@@ -17,7 +17,7 @@ exports.parseComponentName = function parseComponentName (str) {
         const a = str.split('-').map(e => e[0].toUpperCase() + e.substr(1));
         return a.join('');   
     }
-}
+};
 
 exports.log = function log (msg, type = 'error') {
     if (type === 'error') {
