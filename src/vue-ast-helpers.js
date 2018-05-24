@@ -155,8 +155,11 @@ function createRenderMethod (path, state, name) {
     return t.classMethod('method', t.identifier(name), [], t.blockStatement(blocks));
 }
 
-exports.handleCycleMethods = function handleCycleMethods (path, collect, state, name, cycleName) {
+exports.handleCycleMethods = function handleCycleMethods (path, collect, state, name, cycleName, isSFC) {
     if (name === 'render') {
+        if (isSFC) {
+            return;
+        }
         collect.classMethods[cycleName] = createRenderMethod(path, state, name);
     } else {
         collect.classMethods[cycleName] = createClassMethod(path, state, cycleName);
