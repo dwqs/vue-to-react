@@ -71,6 +71,15 @@ exports.handleOnDirective = function handleOnDirective (path, name, value) {
 };
 
 exports.handleBindDirective = function handleBindDirective (path, name, value, state) {
+    if (state.computeds[value]) {
+        path.replaceWith(
+            t.jSXAttribute(
+                t.jSXIdentifier(name),
+                t.jSXExpressionContainer(t.identifier(value))
+            )
+        );
+        return;
+    }
     path.replaceWith(
         t.jSXAttribute(
             t.jSXIdentifier(name),

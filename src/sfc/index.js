@@ -73,6 +73,12 @@ module.exports = function traverseTemplate (template, state) {
                 log('[vue-to-react]: Maybe you are using filter expression, but vtr is not supports it.');
                 return;
             }
+
+            // from computed
+            if (state.computeds[name]) {
+                return;
+            }
+
             // path.container: Fix replace for loop expression error
             if (name && !definedInFor.includes(name) && path.container) {
                 path.replaceWith(
