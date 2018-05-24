@@ -1,7 +1,7 @@
 {
     "name": "vue-to-react",
     "version": "0.0.8",
-    "description": "Try to transform Vue component(jsx syntax) to React component",
+    "description": "Try to transform Vue component to React component",
     "author": "pomysky@gmail.com",
     "license": "MIT",
     "private": false,
