@@ -12,6 +12,13 @@ exports.parseName = function parseName (name) {
     return str;
 };
 
+exports.parseComponentName = function parseComponentName (str) {
+    if (str) {
+        const a = str.split('-').map(e => e[0].toUpperCase() + e.substr(1));
+        return a.join('');   
+    }
+}
+
 exports.log = function log (msg, type = 'error') {
     if (type === 'error') {
         return console.log(chalk.red(`[vue-to-react]: ${msg}`));
