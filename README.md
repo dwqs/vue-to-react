@@ -1,8 +1,8 @@
 ![npm-version](https://img.shields.io/npm/v/vue-to-react.svg) ![license](https://img.shields.io/github/license/dwqs/vue-to-react.svg) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
 
 ## vue-to-react
-🛠️ 👉 Try to transform Vue component([jsx syntax](https://github.com/vuejs/babel-plugin-transform-vue-jsx)) to React component.
->It is under developing, so it's not stable now. The 1st stable version will come soon and be released v1.0.0.
+🛠️ 👉 Try to transform Vue component(support [JSX](https://github.com/vuejs/babel-plugin-transform-vue-jsx) and [SFC](https://vuejs.org/v2/guide/single-file-components.html)) to React component.
+> Since v0.0.8 support SFC
 
 ## Preview screenshots
 ![image](https://user-images.githubusercontent.com/7871813/40406386-0bfc0396-5e93-11e8-9f74-7a45d2694ae9.png)
@@ -47,9 +47,85 @@ Here is a [demo](https://github.com/dwqs/vue-to-react/tree/master/demo).
 ## Attention
 The following list you should be pay attention when you are using vue-to-react to transform a vue component to react component:
 
-* Only supprts **jsx syntax** of vue component, don't support [SFC](https://vuejs.org/v2/guide/single-file-components.html) . See [jsx in vue](https://github.com/vuejs/babel-plugin-transform-vue-jsx)
+* Not support [class object syntax binding](https://vuejs.org/v2/guide/class-and-style.html#Object-Syntax) and [class array syntax binding](https://vuejs.org/v2/guide/class-and-style.html#Array-Syntax)
+
+```js
+// Not support 
+<div v-bind:class="{ active: isActive }"></div>
+<div v-bind:class="[activeClass, errorClass]"></div>
+
+// support
+<div v-bind:class="classes"></div>
+computed: {
+    classes () {
+        // ...
+        return your-classes;
+    }
+}
+
+// ...
+
+// react component
+// ...
+
+render () {
+    const classes = your-classes;
+    return (
+        <div class={classes}></div> 
+    )
+}
+
+```
+
+* Not support [style object syntax binding](https://vuejs.org/v2/guide/class-and-style.html#Object-Syntax-1) and [style array syntax binding](https://vuejs.org/v2/guide/class-and-style.html#Array-Syntax-1)
+
+```js
+// Not support 
+<div v-bind:style="{ color: activeColor, fontSize: fontSize + 'px' }"></div>
+<div v-bind:style="[baseStyles, overridingStyles]"></div>
+
+// support
+<div v-bind:style="style"></div>
+computed: {
+    style () {
+        return {
+            activeColor: 'red',
+            fontSize: 30
+        }
+    }
+}
+
+// ...
+
+// react component
+// ...
+
+render () {
+    const style = {
+      activeColor: 'red',
+      fontSize: 30
+    };
+    return (
+        <div style={style}></div> 
+    )
+}
+
+```
+
 * Not support `watch` prop of vue component
-* Not support `components` prop of vue component. See [component tip](https://github.com/vuejs/babel-plugin-transform-vue-jsx#component-tip)
+* Not support `components` prop of vue component if you are transforming a JSX component. See [component tip](https://github.com/vuejs/babel-plugin-transform-vue-jsx#component-tip). But support `components` prop when you are transforming SFC.
+* Only supports partial built-in Vue directives: `v-if`, `v-else`, `v-show`, `v-for`, `v-bind`, `v-on`, `v-text` and `v-html`.
+* Not support v-bind shorthand and v-on shorthand:
+
+```js
+// Not support
+<div :msg="msg" @click="clickHandler"></div>
+
+// Support
+<div v-bind:msg="msg" v-on:click="clickHandler"></div>
+```
+
+* Not support custom directives and filter expression.
 * Only supports partial lift-cycle methods of vue component. Lift-cycle relations mapping as follows: 
 
 ```js
