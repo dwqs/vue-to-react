@@ -43,15 +43,7 @@ exports.initProps = function initProps (ast, state) {
                 } else if (name === 'props') {
                     collectVueProps(path, state);
                     path.stop();
-                } 
-                // else if (name === 'computed') {
-                //     collectVueComputed(path, state);
-                // } else {
-                //     if (name === 'methods') {
-                //         return;
-                //     }
-                //     log(`Not support the ${name} prop of vue component`);
-                // }
+                }
             }
         }
     });
@@ -93,6 +85,25 @@ exports.initComputed = function initComputed (ast, state) {
             if (parent && t.isExportDefaultDeclaration(parent)) {
                 if (name === 'computed') {
                     collectVueComputed(path, state);
+                    path.stop();
+                }
+            }
+        }
+    });
+};
+
+exports.initComponents = function initComponents (ast, state) {
+    babelTraverse(ast, {
+        ObjectProperty (path) {
+            const parent = path.parentPath.parent;
+            const name = path.node.key.name;
+            if (parent && t.isExportDefaultDeclaration(parent)) {
+                if (name === 'components') {
+                    // collectVueComputed(path, state);
+                    const props = path.node.value.properties;
+                    props.forEach(prop => {
+                        state.components[prop.key.name] = prop.value.name;
+                    });
                     path.stop();
                 }
             }
