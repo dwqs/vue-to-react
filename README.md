@@ -5,7 +5,13 @@
 > Since v0.0.8 support SFC
 
 ## Preview screenshots
-![image](https://user-images.githubusercontent.com/7871813/40406386-0bfc0396-5e93-11e8-9f74-7a45d2694ae9.png)
+**Transform JSX Component:**
+
+![jsx](https://user-images.githubusercontent.com/7871813/40406386-0bfc0396-5e93-11e8-9f74-7a45d2694ae9.png)
+
+**Transform SFC Component:**
+
+![sfc](https://user-images.githubusercontent.com/7871813/40526210-9afc8112-6017-11e8-8266-c0b7920281e2.png)
 
 ### Install
 Prerequisites: [Node.js](https://nodejs.org/en/) (>=8.0) and [NPM](https://www.npmjs.com/) (>=5.0)
