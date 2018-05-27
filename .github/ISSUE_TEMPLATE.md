@@ -8,3 +8,7 @@ The description for your problem...
 ```
 // your command is here
 ```
+## Error Info
+```
+// error info
+```
