@@ -14,6 +14,8 @@ module.exports = {
     'mousedown': 'onMouseDown',
     'mouseup': 'onMouseUp',
     'mousemove': 'onMouseMove',
+    'mouseenter': 'onMouseEnter',
+    'mouseleave': 'onMouseLeave',
     'mouseout': 'onMouseOut',
     'mouseover': 'onMouseOver',
     'reset': 'onReset',
@@ -28,5 +30,9 @@ module.exports = {
     'dragleave': 'onDragLeave',
     'dragover': 'onDragOver',
     'dragstart': 'onDragStart',
-    'drop': 'onDrop'
+    'drop': 'onDrop',
+    'touchstart': 'onTouchStart',
+    'touchend': 'onTouchEnd',
+    'touchcancel': 'onTouchCancel',
+    'touchmove': 'onTouchMove'
 };
