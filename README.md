@@ -120,8 +120,8 @@ render () {
 
 * Not support `watch` prop of vue component
 * Not support `components` prop of vue component if you are transforming a JSX component. See [component tip](https://github.com/vuejs/babel-plugin-transform-vue-jsx#component-tip). But support `components` prop when you are transforming SFC.
-* Only supports partial built-in Vue directives: `v-if`, `v-else`, `v-show`, `v-for`, `v-bind`, `v-on`, `v-text` and `v-html`.
-* Not support v-bind shorthand and v-on shorthand:
+* Only supports partial built-in Vue directives(SFC): `v-if`, `v-else`, `v-show`, `v-for`, `v-bind`, `v-on`, `v-text` and `v-html`.
+* Not support v-bind shorthand and v-on shorthand(SFC):
 
 ```js
 // Not support
@@ -131,7 +131,7 @@ render () {
 <div v-bind:msg="msg" v-on:click="clickHandler"></div>
 ```
 
-* Not support custom directives and filter expression.
+* Not support custom directives and filter expression(SFC).
 * Only supports partial lift-cycle methods of vue component. Lift-cycle relations mapping as follows: 
 
 ```js
