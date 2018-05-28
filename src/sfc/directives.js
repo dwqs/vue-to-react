@@ -10,14 +10,15 @@ exports.handleIfDirective = function handleIfDirective (path, value, state) {
 
     // Get JSXElment of v-else
     const nextElement = getNextJSXElment(parentPath);
+    const test = state.computeds[value] ? t.identifier(value) : t.memberExpression(
+        t.memberExpression(t.thisExpression(), getIdentifier(state, value)),
+        t.identifier(value)
+    );
 
     parentPath.replaceWith(
         t.jSXExpressionContainer(
             t.conditionalExpression(
-                t.memberExpression(
-                    t.memberExpression(t.thisExpression(), getIdentifier(state, value)),
-                    t.identifier(value)
-                ),
+                test,
                 parentPath.node,
                 nextElement ? nextElement : t.nullLiteral()
             )
@@ -28,6 +29,11 @@ exports.handleIfDirective = function handleIfDirective (path, value, state) {
 };
 
 exports.handleShowDirective = function handleShowDirective (path, value, state) {
+    const test = state.computeds[value] ? t.identifier(value) : t.memberExpression(
+        t.memberExpression(t.thisExpression(), getIdentifier(state, value)),
+        t.identifier(value)
+    );
+
     path.replaceWith(
         t.jSXAttribute(
             t.jSXIdentifier('style'),
@@ -36,10 +42,7 @@ exports.handleShowDirective = function handleShowDirective (path, value, state) 
                     t.objectProperty(
                         t.identifier('display'),
                         t.conditionalExpression(
-                            t.memberExpression(
-                                t.memberExpression(t.thisExpression(), getIdentifier(state, value)),
-                                t.identifier(value)
-                            ),
+                            test,
                             t.stringLiteral('block'),
                             t.stringLiteral('none')
                         )
@@ -108,14 +111,16 @@ exports.handleForDirective = function handleForDirective (path, value, definedIn
         newParams.push(t.identifier(item.trim()));
     });
 
+    const member = state.computeds[prop] ? t.identifier(prop) : t.memberExpression(
+        t.memberExpression(t.thisExpression(), getIdentifier(state, value)),
+        t.identifier(prop)
+    );
+
     parentPath.replaceWith(
         t.jSXExpressionContainer(
             t.callExpression(
                 t.memberExpression(
-                    t.memberExpression(
-                        t.memberExpression(t.thisExpression(), getIdentifier(state, value)),
-                        t.identifier(prop)
-                    ),
+                    member,
                     t.identifier('map')
                 ),
                 [
@@ -185,16 +190,18 @@ exports.handleTextDirective = function handleTextDirective (path, value, state) 
 };
 
 exports.handleHTMLDirective = function handleHTMLDirective (path, value, state) {
+    const val = state.computeds[value] ? t.identifier(value) : t.memberExpression(
+        t.memberExpression(t.thisExpression(), getIdentifier(state, value)),
+        t.identifier(value)
+    );
+
     path.replaceWith(
         t.jSXAttribute(
             t.jSXIdentifier('dangerouslySetInnerHTML'),
             t.jSXExpressionContainer(
                 t.objectExpression(
                     [
-                        t.objectProperty(t.identifier('__html'), t.memberExpression(
-                            t.memberExpression(t.thisExpression(), getIdentifier(state, value)),
-                            t.identifier(value)
-                        ))
+                        t.objectProperty(t.identifier('__html'), val)
                     ]
                 )
             )
